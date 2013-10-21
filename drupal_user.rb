@@ -44,9 +44,9 @@ class DrupalUser
     # Google's public API recommends and IP and referer to mitigate abuse.
     # @todo Convert to use Google CSE.
     if @@username_map.has_key?(name) == false
-      puts 'looking up'
+      puts 'looking up ' + name
       google_url = 'http://ajax.googleapis.com/ajax/services/search/web?v=1.0&q=%s'
-      user_search_query = sprintf(google_url, name) + URI.escape(' site:drupal.org')
+      user_search_query = sprintf(google_url, URI.escape(name)) + URI.escape(' site:drupal.org')
       google_result = Crack::JSON.parse(RestClient.get(user_search_query, :referer => 'http://camerontod.com'))
       google_result['responseData']['results'].each do |result|
         match = result['url'].match Regexp.quote('drupal.org/user/') + '(\d+)$'
@@ -61,7 +61,7 @@ class DrupalUser
   def get_username_map
     # Keep a static cache of username->uid mappings, to avoid looking it up via Google each time.
     #if @@username_map.nil? && File.exists?('username_uid.yml')
-      @@username_map ||= YAML.load_file('username_uid.yml')
+      @@username_map ||= YAML.load_file('/Users/cameron.tod/Sites/drupalcontribscrape/username_uid.yml')
     #end
     return @@username_map
     #@@username_map ||= Hash.new()
