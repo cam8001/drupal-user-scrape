@@ -10,6 +10,7 @@
 
 require_relative 'drupal_user'
 require_relative 'drupal_user_scrape'
+require 'awesome_print'
 
 #url='http://en.wikipedia.org/w/api.php?action=opensearch&search=At&namespace=0'
 #commiters_url = 'http://ericduran.github.io/drupalcores/data.json'
@@ -23,17 +24,36 @@ require_relative 'drupal_user_scrape'
 
 #ap get_profile_url_from_name('xjm')
 
+
+#uid_map = YAML.load_file('username_uid.yml')
+#uid_map.each do |k,v|
+#  puts k + ' ' + v
+#end
+#
+#uid_map['chicken'] = '666'
+#File.open('username_uid.yml', 'w') do |out|
+#  YAML.dump(uid_map, out)
+#end
+
+
+
 names = %w(matsearle cam8001 chx xjm)
-#Benchmark.bm(11) do |b|
- # b.report('lookup') do
+##Benchmark.bm(11) do |b|
+# # b.report('lookup') do
     names.each { |name|
       du = DrupalUser.new(name)
       puts name + '  ' + du.profile_url
       dus = DrupalUserScrape.new(du.get_uid)
       puts ' Company:' + dus.get_company
     }
- # end
-#end
+# # end
+##end
 
-
-
+# TODO figure out a way to automatically write out the username map to YAML when all DrupalUser instances
+# are garbage collected (destroyed).
+du = DrupalUser.new('cam8001')
+uid_map = du.get_username_map
+ap uid_map
+File.open('username_uid.yml', 'w') do |out|
+  YAML.dump(uid_map, out)
+end
