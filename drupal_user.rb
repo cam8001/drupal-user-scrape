@@ -13,6 +13,9 @@ require 'nokogiri'
 class DrupalUser
   # Base URL for Drupal user profiles.
   DRUPAL_USER_PROFILE_URL = 'https://drupal.org/user/'
+  # File to store resolved username->uids.
+  # TODO make configurable.
+  USERNAME_UID_YAML_PATH = File.dirname(File.expand_path(__FILE__)) + '/username_uid.yml'
 
   def initialize(username)
     @username = username
@@ -54,13 +57,16 @@ class DrupalUser
 
   def get_username_map
     # Keep a static cache of username->uid mappings, to avoid looking it up via Google each time.
-    # TODO fix this so we can use the current directory of this class, or make it configurable, rather than hardcoding
     # the path.
-    #if @@username_map.nil? && File.exists?('username_uid.yml')
-      @@username_map ||= YAML.load_file('/Users/cameron.tod/Sites/drupalcontribscrape/username_uid.yml')
-    #end
+    unless defined? @@username_map
+      @@username_map = Hash.new(0)
+      if File.exists?(USERNAME_UID_YAML_PATH)
+        @@username_map = YAML::load_file(USERNAME_UID_YAML_PATH)
+        puts "Loaded #{USERNAME_UID_YAML_PATH}, #{@@username_map.count()} names already resolved."
+      end
+    end
+
     return @@username_map
-    #@@username_map ||= Hash.new()
   end
 
   def get_uid
