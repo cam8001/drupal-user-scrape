@@ -10,31 +10,43 @@ class DrupalUserScrape
 
   def initialize(uid)
     @uid = uid
+    @page ||= Nokogiri::HTML(open(DRUPAL_USER_PROFILE_URL + @uid))
     self.scrape
   end
 
-  def uid=(newUid)
-    @uid = newUid
+  #def company_name=(newCompany)
+  #  @company_name = newCompany
+  #end
+  #
+  #def job_title=(newJobTitle)
+  #  @job_title = newJobTitle
+  #end
+  #
+  #def fullname=(newFullName)
+  #  @fullname = newFullName
+  #end
+
+  def company_name
+    @company_name
   end
 
-  def company_name=(newCompany)
-    @company_name = newCompany
+  def company_logo
+    @company_logo
   end
 
-  def job_title=(newJobTitle)
-    @job_title = newJobTitle
+  def country
+    @country
   end
 
-  def get_company
-    return @company_name
+  def job_title
+    @job_title
   end
 
   def scrape
-    @page = Nokogiri::HTML(open(DRUPAL_USER_PROFILE_URL + @uid))
-    # XPath copied straight out of Firefox web inspector.
-    @job_title = @page.xpath('/html/body/div[3]/div/div[2]/div/div/div/div/dl[3]/dd').first.text
     self.scrape_company
-    #ap @job_title
+    self.scrape_fullname
+    self.scrape_job_title
+    self.scrape_country
   end
 
   def scrape_company
@@ -45,10 +57,32 @@ class DrupalUserScrape
         when 'text'
           @company_name = element.text
         when 'img'
+          @company_logo = element['src']
           @company_name = element['alt']
       end
     end
 
+    def scrape_fullname
+      # TODO
+    end
+
+    def scrape_country
+      @country = @page.css('dd.profile-country.grid-6.omega a').first.text
+      ap @country
+    end
+
+    def scrape_job_title
+      # XPath copied straight out of Firefox web inspector.
+      @job_title = @page.xpath('/html/body/div[3]/div/div[2]/div/div/div/div/dl[3]/dd').first.text
+    end
+
+    # Get a page object suitable for parsing.
+    # @link http://tomdoc.org/
+    #
+    # TODO: When I am less tired read the following link more carefully and
+    # review visibility. Protected is NOT the same as in Java/PHP.
+    #
+    # http://blog.zerosum.org/2007/11/22/ruby-method-visibility
 
   end
 
