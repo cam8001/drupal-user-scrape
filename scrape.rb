@@ -43,17 +43,11 @@ names = %w(matsearle cam8001 chx xjm)
     names.each { |name|
       du = DrupalUser.new(name)
       puts name + '  ' + du.profile_url
-      dus = DrupalUserScrape.new(du.get_uid)
-      puts ' Company:' + dus.get_company
+      dus = DrupalUserScrape.new(du.uid)
+      puts %(User #{name} lives in #{dus.country} and works for #{dus.company_name} #{dus.company_logo})
     }
 # # end
 ##end
 
-# TODO figure out a way to automatically write out the username map to YAML when all DrupalUser instances
-# are garbage collected (destroyed).
-du = DrupalUser.new('cam8001')
-uid_map = du.get_username_map
-ap uid_map
-File.open('username_uid.yml', 'w') do |out|
-  YAML.dump(uid_map, out)
-end
+# TODO figure out a way to automatically write out the username map to YAML when
+# all DrupalUser instances are garbage collected (destroyed).
