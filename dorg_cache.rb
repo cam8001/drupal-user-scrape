@@ -48,6 +48,13 @@ class DOrgCache
     @logger.info("Fetching document from #{url} and writing to #{file_path}")
     # Fetch the document and write it to a local cache file.
     File.open(file_path, 'w') {|file| file.write(open(url).read)}
+
+    r = Random.new
+    sleepytime = r.rand(2...8)
+    easyness = %w(chill sleep smoke shower drink eat).sample
+    puts "Now we have saved #{File.basename(file_path)}, gonna take it easy and #{easyness} for #{sleepytime} seconds :)"
+    sleep(sleepytime)
+
     open(file_path)
 
   end
