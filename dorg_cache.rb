@@ -18,7 +18,7 @@ class DOrgCache
   #
   # cache_dir - String - path to use as cache directory.
   #
-  def initialize(cache_dir='/tmp', cache_timeout=86400)
+  def initialize(cache_dir=File.dirname(File.expand_path(__FILE__)) + '/dorgcache', cache_timeout=86400)
     @cache_dir = cache_dir
     @cache_timeout = cache_timeout
     @logger = Logger.new(STDOUT)
@@ -40,7 +40,7 @@ class DOrgCache
     match = url.match(%r"(node|user)/(\d+)")
     file_path = File.join(@cache_dir, "#{match[1]}-#{match[2]}#{DORG_CACHE_SUFFIX}")
 
-    if File.exists? file_path
+    if File.exists? file_path and File.size(file_path) > 0
       @logger.info("Returning url #{url} from local cache #{file_path}.")
       return open(file_path) if Time.now-File.mtime(file_path)<expire
     end
