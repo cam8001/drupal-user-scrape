@@ -48,7 +48,7 @@ class DrupalUser
         result_page = Nokogiri::HTML(open(drupal_user_search_url + URI.escape(name)))
         match = result_page.css('dl.user_search-results a').first['href'].match Regexp.quote('drupal.org/user/') + '(\d+)$'
         @@username_map[name] = match[1]
-        @logger.info("Matched user #{name} to uid #{@uid}.")
+        @logger.info("Matched user #{name} to uid #{@@username_map[name]}.")
       end
 
       return @@username_map[name]
