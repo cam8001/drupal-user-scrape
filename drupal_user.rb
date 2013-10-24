@@ -9,6 +9,7 @@ require 'benchmark'
 require 'resolv'
 require 'yaml'
 require 'nokogiri'
+require 'logger'
 
 class DrupalUser
   # Base URL for Drupal user profiles.
@@ -18,6 +19,8 @@ class DrupalUser
   USERNAME_UID_YAML_PATH = File.dirname(File.expand_path(__FILE__)) + '/username_uid.yml'
 
   def initialize(username)
+    @logger = Logger.new(STDOUT)
+
     @username = username
     @@username_map = get_username_map
     @uid = self.get_uid_from_name(@username)
@@ -45,12 +48,12 @@ class DrupalUser
         result_page = Nokogiri::HTML(open(drupal_user_search_url + URI.escape(name)))
         match = result_page.css('dl.user_search-results a').first['href'].match Regexp.quote('drupal.org/user/') + '(\d+)$'
         @@username_map[name] = match[1]
-        puts 'Found them! uid is ' + @@username_map[name]
+        @logger.info("Matched user #{name} to uid #{@uid}.")
       end
 
       return @@username_map[name]
     rescue NoMethodError=>e
-      puts "Cannot find user #{name}. Perhaps their name has changed?"#" Error: #{e}."
+      @logger.info("Cannot find user #{name}. Perhaps their name has changed?")#" Error: #{e}."
     end
   end
 
@@ -61,7 +64,7 @@ class DrupalUser
       @@username_map = Hash.new(0)
       if File.exists?(USERNAME_UID_YAML_PATH)
         @@username_map = YAML::load_file(USERNAME_UID_YAML_PATH)
-        puts "Loaded #{USERNAME_UID_YAML_PATH}, #{@@username_map.count()} names already resolved."
+        @logger.info("Loaded #{USERNAME_UID_YAML_PATH}, #{@@username_map.count()} names already resolved.")
       end
     end
 
