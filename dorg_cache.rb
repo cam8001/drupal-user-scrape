@@ -1,3 +1,25 @@
+require 'logger'
+require 'open-uri'
+
+module Kernel
+  private
+  alias open_test_original_open open # :nodoc:
+  class << self
+    alias open_test_original_open open # :nodoc:
+  end
+
+  def open(name, *rest, &block) # :doc:
+    if name =~ %r'http(?:s)?://drupal.org/'
+      # TODO figure out the equivalent of static methods.
+      # Might need to refactor DOrgCache for that to make sense.
+      dcache = DOrgCache.new()
+      return dcache.fetch(name)
+    end
+    open_test_original_open(name, *rest, &block)
+  end
+  module_function :open
+end
+
 # Very lightweight and simple cache implementation for caching calls to
 # Drupal.org.
 #
@@ -6,9 +28,6 @@
 # eg: https://github.com/tigris/open-uri-cached
 # see also source of open_uri.
 #
-require 'logger'
-require 'open-uri'
-
 class DOrgCache
 
   # String appended to cache items.
@@ -42,12 +61,13 @@ class DOrgCache
 
     if File.exists? file_path
       @logger.info("Returning url #{url} from local cache #{file_path}.")
-      return open(file_path) if Time.now-File.mtime(file_path)<expire
+      return OpenURI.open(file_path) if Time.now-File.mtime(file_path)<expire
     end
 
     @logger.info("Fetching document from #{url} and writing to #{file_path}")
     # Fetch the document and write it to a local cache file.
-    File.open(file_path, 'w') {|file| file.write(open(url).read)}
+    # TODO Compress files when writing with zlib.
+    File.open(file_path, 'w') {|file| file.write(OpenURI.open(url).read)}
     open(file_path)
 
   end

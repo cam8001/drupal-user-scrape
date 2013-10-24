@@ -1,6 +1,6 @@
 require 'rubygems'
 require 'nokogiri'
-require 'open-uri'
+require_relative 'dorg_cache'
 require 'awesome_print'
 
 # TODO make this extend DrupalUser to populate the appropriate fields.
