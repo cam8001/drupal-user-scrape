@@ -14,8 +14,8 @@ class DrupalUserScrape
     self.scrape
   end
 
-  #def company_name=(newCompany)
-  #  @company_name = newCompany
+  #def company=(newCompany)
+  #  @company = newCompany
   #end
   #
   #def job_title=(newJobTitle)
@@ -26,8 +26,8 @@ class DrupalUserScrape
   #  @fullname = newFullName
   #end
 
-  def company_name
-    @company_name
+  def company
+    @company
   end
 
   def company_logo
@@ -55,10 +55,10 @@ class DrupalUserScrape
       # Some companies have logos on Drupal.org; dome do not.
       case element.name
         when 'text'
-          @company_name = element.text
+          @company = element.text
         when 'img'
           @company_logo = element['src']
-          @company_name = element['alt']
+          @company = element['alt']
       end
     end
 
@@ -68,7 +68,6 @@ class DrupalUserScrape
 
     def scrape_country
       @country = @page.css('dd.profile-country.grid-6.omega a').first.text
-      ap @country
     end
 
     def scrape_job_title

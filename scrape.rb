@@ -35,8 +35,6 @@ require 'awesome_print'
 #  YAML.dump(uid_map, out)
 #end
 
-
-
 names = %w(matsearle cam8001 chx xjm)
 ##Benchmark.bm(11) do |b|
 # # b.report('lookup') do
@@ -44,7 +42,7 @@ names = %w(matsearle cam8001 chx xjm)
       du = DrupalUser.new(name)
       puts name + '  ' + du.profile_url
       dus = DrupalUserScrape.new(du.uid)
-      puts %(User #{name} lives in #{dus.country} and works for #{dus.company_name} #{dus.company_logo})
+      puts %(User #{name} lives in #{dus.country} and works for #{dus.company} #{dus.company_logo})
     }
 # # end
 ##end
