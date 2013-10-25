@@ -8,6 +8,7 @@
 #
 require 'logger'
 require 'open-uri'
+require 'uri'
 
 class DOrgCache
 
@@ -31,14 +32,13 @@ class DOrgCache
   # expire - Integer - a timeout in seconds after which to expire the cache.
   #
   def fetch(url, expire=@cache_timeout)
-    # For now, the only data we will ever cache is nodes and user profiles,
-    # so we can have a simple filename structure:
+    # Cache with a simple url structure:
     #
     # https://drupal.org/node/123 becomes node-123.dorg.cache
     # https://drupal.org/user/129588 becomes user-129588.dorg.cache
+    # https://drupal.org/search/user_search/ACF becomes search-user_search-ACF.dorg.cache
     # NOTE: Check this out in irb: 'https://drupal.org/node/123'[/\d+/]
-    match = url.match(%r"(node|user)/(\d+)")
-    file_path = File.join(@cache_dir, "#{match[1]}-#{match[2]}#{DORG_CACHE_SUFFIX}")
+    file_path = URI(url).path().gsub('/', '_')[1, URI(url).path().length] + DORG_CACHE_SUFFIX
 
     if File.exists? file_path and File.size(file_path) > 0
       @logger.info(self.class) {"Returning url #{url} from local cache #{file_path}."}
