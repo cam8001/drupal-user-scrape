@@ -46,14 +46,19 @@ class DrupalUser
       if @@username_map.has_key?(name) == false
         drupal_user_search_url = 'https://drupal.org/search/user_search/'
         result_page = Nokogiri::HTML(open(drupal_user_search_url + URI.escape(name)))
-        match = result_page.css('dl.user_search-results a').first['href'].match Regexp.quote('drupal.org/user/') + '(\d+)$'
-        @@username_map[name] = match[1]
-        @logger.info("Matched user #{name} to uid #{@@username_map[name]}.")
+        result_page.css('dl.user_search-results a').each do |a|
+          # Match only on exact names.
+          if a.text == name
+            match = a['href'].match Regexp.quote('drupal.org/user/') + '(\d+)$'
+            @@username_map[name] = match[1]
+            @logger.info(self.class) {"Matched user #{name} to uid #{@@username_map[name]}."}
+          end
+        end
       end
 
       return @@username_map[name]
     rescue NoMethodError=>e
-      @logger.info("Cannot find user #{name}. Perhaps their name has changed?")#" Error: #{e}."
+      @logger.info(self.class) {"Cannot find user #{name}. Perhaps their name has changed?"}#" Error: #{e}."
     end
   end
 
@@ -64,7 +69,7 @@ class DrupalUser
       @@username_map = Hash.new(0)
       if File.exists?(USERNAME_UID_YAML_PATH)
         @@username_map = YAML::load_file(USERNAME_UID_YAML_PATH)
-        @logger.info("Loaded #{USERNAME_UID_YAML_PATH}, #{@@username_map.count()} names already resolved.")
+        @logger.info(self.class) {"Loaded #{USERNAME_UID_YAML_PATH}, #{@@username_map.count()} names already resolved."}
       end
     end
 
