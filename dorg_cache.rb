@@ -41,16 +41,19 @@ class DOrgCache
     file_path = File.join(@cache_dir, "#{match[1]}-#{match[2]}#{DORG_CACHE_SUFFIX}")
 
     if File.exists? file_path and File.size(file_path) > 0
-      @logger.info("Returning url #{url} from local cache #{file_path}.")
+      @logger.info(self.class) {"Returning url #{url} from local cache #{file_path}."}
       return open(file_path) if Time.now-File.mtime(file_path)<expire
     end
 
-    @logger.info("Fetching document from #{url} and writing to #{file_path}")
+    @logger.info(self.class) {"Fetching document from #{url} and writing to #{file_path}"}
     # Fetch the document and write it to a local cache file.
-    File.open(file_path, 'w') {|file| file.write(open(url).read)}
-
+    begin
+      File.open(file_path, 'w') {|file| file.write(open(url).read)}
+    rescue OpenURI::HTTPError=>e
+      @logger.warn(self.class) {"Error opening URL, #{e}"}
+    end
     r = Random.new
-    sleepytime = r.rand(2...8)
+    sleepytime = r.rand(8...20)
     easyness = %w(chill sleep smoke shower drink eat).sample
     puts "Now we have saved #{File.basename(file_path)}, gonna take it easy and #{easyness} for #{sleepytime} seconds :)"
     sleep(sleepytime)
