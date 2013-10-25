@@ -2,9 +2,7 @@
 # Drupal.org.
 #
 # TODO find a suitable library somewhere.
-# TODO work out how to override the core open() method (modules/mixins)
-# eg: https://github.com/tigris/open-uri-cached
-# see also source of open_uri.
+# TODO incorporate zlib compression.
 #
 require 'logger'
 require 'open-uri'
@@ -39,6 +37,7 @@ class DOrgCache
     # https://drupal.org/search/user_search/ACF becomes search-user_search-ACF.dorg.cache
     # NOTE: Check this out in irb: 'https://drupal.org/node/123'[/\d+/]
     file_path = URI(url).path().gsub('/', '_')[1, URI(url).path().length] + DORG_CACHE_SUFFIX
+    file_path = File.join(@cache_dir, file_path)
 
     if File.exists? file_path and File.size(file_path) > 0
       @logger.info(self.class) {"Returning url #{url} from local cache #{file_path}."}
@@ -53,7 +52,7 @@ class DOrgCache
       @logger.warn(self.class) {"Error opening URL, #{e}"}
     end
     r = Random.new
-    sleepytime = r.rand(8...20)
+    sleepytime = r.rand(2...6)
     easyness = %w(chill sleep smoke shower drink eat).sample
     puts "Now we have saved #{File.basename(file_path)}, gonna take it easy and #{easyness} for #{sleepytime} seconds :)"
     sleep(sleepytime)
