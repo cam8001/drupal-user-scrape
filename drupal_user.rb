@@ -10,6 +10,7 @@ require 'resolv'
 require 'yaml'
 require 'nokogiri'
 require 'logger'
+require_relative 'dorg_cache'
 
 class DrupalUser
   # Base URL for Drupal user profiles.
@@ -20,6 +21,7 @@ class DrupalUser
 
   def initialize(username)
     @logger = Logger.new(STDOUT)
+    @dorg_cache = DOrgCache.new()
 
     @username = username
     @@username_map = get_username_map
@@ -45,7 +47,7 @@ class DrupalUser
     begin
       if @@username_map.has_key?(name) == false
         drupal_user_search_url = 'https://drupal.org/search/user_search/'
-        result_page = Nokogiri::HTML(open(drupal_user_search_url + URI.escape(name)))
+        result_page = Nokogiri::HTML(@dorg_cache.fetch(drupal_user_search_url + URI.escape(name)))
         result_page.css('dl.user_search-results a').each do |a|
           # Match only on exact names.
           if a.text == name
