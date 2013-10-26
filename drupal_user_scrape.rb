@@ -18,9 +18,9 @@ class DrupalUserScrape
     @surname, @website = ''
 
     begin
-      @page ||= Nokogiri::HTML(@dorg_cache.fetch(DRUPAL_USER_PROFILE_URL + @uid))
+      @page ||= Nokogiri::HTML(@dorg_cache.fetch(DRUPAL_USER_PROFILE_URL + @uid.to_s))
     rescue TypeError=>e
-      @logger.info(self.class) {"Couldn't parse #{e}"}
+      @logger.info(self.class) {"Couldn't parse for uid #{@uid}. #{e}"}
     end
   end
 
