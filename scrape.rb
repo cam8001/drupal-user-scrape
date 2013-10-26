@@ -30,19 +30,19 @@ require 'awesome_print'
 #  puts k + ' ' + v
 #end
 #
-#uid_map['chicken'] = '666'
+#
 #File.open('username_uid.yml', 'w') do |out|
 #  YAML.dump(uid_map, out)
 #end
 
-names = %w(matsearle cam8001 chx xjm)
+names = %w(cam8001)#matsearle ghazlewood)
 ##Benchmark.bm(11) do |b|
 # # b.report('lookup') do
     names.each { |name|
       du = DrupalUser.new(name)
-      puts name + '  ' + du.profile_url
+      #puts name + '  ' + du.profile_url
       dus = DrupalUserScrape.new(du.uid)
-      puts %(User #{name} lives in #{dus.country} and works for #{dus.company} #{dus.company_logo})
+      puts %(User #{name} is #{dus.fullname}, a #{dus.job_title}, and lives in #{dus.country} and works for #{dus.company} #{dus.company_logo})
     }
 # # end
 ##end
