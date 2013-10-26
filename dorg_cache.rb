@@ -54,10 +54,11 @@ class DOrgCache
     r = Random.new
     sleepytime = r.rand(2...6)
     easyness = %w(chill sleep smoke shower drink eat).sample
-    puts "Now we have saved #{File.basename(file_path)}, gonna take it easy and #{easyness} for #{sleepytime} seconds :)"
+    @logger.info(self.class) {"Now we have saved #{File.basename(file_path)}, gonna take it easy and #{easyness} for #{sleepytime} seconds :)"}
     sleep(sleepytime)
 
     open(file_path)
+  end
 
   end
 
