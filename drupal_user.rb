@@ -28,14 +28,6 @@ class DrupalUser
     @uid = self.get_uid_from_name(@username)
   end
 
-  def username=(newUsername)
-    @username = newUsername
-  end
-
-  def uid=(newUid)
-    @uid = newUid
-  end
-
   def profile_url
     DRUPAL_USER_PROFILE_URL + @uid
   end
