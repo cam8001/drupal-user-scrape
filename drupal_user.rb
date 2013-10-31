@@ -19,14 +19,27 @@ class DrupalUser
   # TODO make configurable.
   USERNAME_UID_YAML_PATH = File.dirname(File.expand_path(__FILE__)) + '/username_uid.yml'
 
-  def initialize(username)
+
+  def initialize(params)
+    # The class can be initialized with either a username, a uid, or both. Any
+    # value not provided is looked up via a scrape.
     @logger = Logger.new(STDOUT)
     @dorg_cache = DOrgCache.new()
 
-    @username = username
     @@username_map = get_username_map
-    @uid = self.get_uid_from_name(@username)
+    @username = params[:username]
+    @uid = params[:uid]
+
+    @uid ||= self.get_uid_from_name(@username)
+    @username ||= self.get_username_from_uid(@uid)
+    #if (@username.nil? && @uid.nil?)
+    #  raise ArgumentError 'You must supply either a uid or username.'
+    #  # Throw an exception.
+    #end
+
   end
+
+
 
   def profile_url
     DRUPAL_USER_PROFILE_URL + @uid
@@ -56,6 +69,12 @@ class DrupalUser
     end
   end
 
+  def get_username_from_uid(uid)
+    unless @@username_map.invert[uid.to_s].nil?
+      return @@username_map.invert[uid.to_s]
+    end
+  end
+
   def get_username_map
     # Keep a static cache of username->uid mappings, to avoid looking it up via Google each time.
     # the path.
@@ -77,6 +96,10 @@ class DrupalUser
   # "Any statement in ruby returns the value of the last evaluated expression."
   def uid
      @uid
+  end
+
+  def username
+    @username
   end
 
 

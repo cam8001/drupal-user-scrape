@@ -6,8 +6,6 @@ require 'logger'
 
 # TODO make this extend DrupalUser to populate the appropriate fields.
 class DrupalUserScrape
-  # Base URL for Drupal user profiles.
-  DRUPAL_USER_PROFILE_URL = 'https://drupal.org/user/'
 
   def initialize(uid)
     @uid = uid

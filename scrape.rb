@@ -25,6 +25,8 @@ require 'awesome_print'
 #ap get_profile_url_from_name('xjm')
 
 
+du = DrupalUser.new(:uid => 707262)
+
 #uid_map = YAML.load_file('username_uid.yml')
 #uid_map.each do |k,v|
 #  puts k + ' ' + v
@@ -35,17 +37,17 @@ require 'awesome_print'
 #  YAML.dump(uid_map, out)
 #end
 
-names = %w(cam8001)#matsearle ghazlewood)
-##Benchmark.bm(11) do |b|
-# # b.report('lookup') do
-    names.each { |name|
-      du = DrupalUser.new(name)
-      #puts name + '  ' + du.profile_url
-      dus = DrupalUserScrape.new(du.uid)
-      puts %(User #{name} is #{dus.fullname}, a #{dus.job_title}, and lives in #{dus.country} and works for #{dus.company} #{dus.company_logo})
-    }
-# # end
-##end
+#names = %w(cam8001)#matsearle ghazlewood)
+###Benchmark.bm(11) do |b|
+## # b.report('lookup') do
+#    names.each { |name|
+#      du = DrupalUser.new(name)
+#      #puts name + '  ' + du.profile_url
+#      dus = DrupalUserScrape.new(du.uid)
+#      puts %(User #{name} is #{dus.fullname}, a #{dus.job_title}, and lives in #{dus.country} and works for #{dus.company} #{dus.company_logo})
+#    }
+## # end
+###end
 
 # TODO figure out a way to automatically write out the username map to YAML when
 # all DrupalUser instances are garbage collected (destroyed).
