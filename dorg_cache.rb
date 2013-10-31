@@ -60,6 +60,4 @@ class DOrgCache
     open(file_path)
   end
 
-  end
-
 end
