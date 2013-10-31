@@ -19,8 +19,10 @@ class DrupalUser
   # TODO make configurable.
   USERNAME_UID_YAML_PATH = File.dirname(File.expand_path(__FILE__)) + '/username_uid.yml'
 
-
   def initialize(params)
+    # Initialize all fields to empty strings to avoid nil errors later.
+    @company, @company_logo, @country, @job_title, @fullname, @first_name,
+        @surname, @website = ''
     # The class can be initialized with either a username, a uid, or both. Any
     # value not provided is looked up via a scrape.
     @logger = Logger.new(STDOUT)
@@ -37,13 +39,78 @@ class DrupalUser
     #  # Throw an exception.
     #end
 
+    begin
+      @page ||= Nokogiri::HTML(@dorg_cache.fetch(DRUPAL_USER_PROFILE_URL + @uid.to_s))
+    rescue TypeError => e
+      @logger.info(self.class) { "Couldn't parse for uid #{@uid}. #{e}" }
+    end
+
   end
-
-
 
   def profile_url
     DRUPAL_USER_PROFILE_URL + @uid
   end
+
+  # Public: scrape elements that contain text and return their contents.
+  #
+  # css_selector - A CSS selector String for the element to be scraped.
+  #
+  def scrape_text_element(css_selector)
+    @page.css(css_selector).each do |element|
+      return element.text
+    end
+  end
+
+  # Public: scrape a typical user field.
+  #
+  # The majority of fields follow a simple CSS pattern. This function
+  # allows access to profile fields by passing only the unique part of the CSS
+  # identifier.
+  #
+  # fieldname: String, unique component of a CSS string.
+  #
+  def scrape_field(fieldname)
+    css_selector = "dd.profile-profile_#{fieldname}.grid-6.omega"
+    self.scrape_text_element(css_selector)
+  end
+
+  def company
+    # Company is a trickier parse, because it may be either a logo or an anchor.
+    if @company == ''
+      self.scrape_company
+    end
+    @company
+  end
+
+  def company_logo
+    self.company
+    @company_logo
+  end
+
+  def country
+    @country ||= self.scrape_text_element('dd.profile-country.grid-6.omega a')
+  end
+
+  def job_title
+    @job_title ||= self.scrape_field('job')
+  end
+
+  def fullname
+    @fullname ||= self.scrape_field('full_name')
+  end
+
+  def firstname
+    @first_name ||= self.scrape_field('first_name')
+  end
+
+  def surname
+    @surname ||= self.scrape_field('last_name')
+  end
+
+  def website
+    @website ||= self.scrape_text_element('profile-homepage.grid-6.omega a')
+  end
+
 
   def get_uid_from_name(name)
     # TODO Keep a static cache of results.
@@ -69,6 +136,7 @@ class DrupalUser
     end
   end
 
+  # TODO: Integrate with @page parsing.
   def get_username_from_uid(uid)
     unless @@username_map.invert[uid.to_s].nil?
       return @@username_map.invert[uid.to_s]
@@ -102,9 +170,23 @@ class DrupalUser
     @username
   end
 
-
   protected
+
+    def scrape_company
+      @page.css('dd.profile-profile_current_company_organization a').children.each do |element|
+        # Some companies have logos on Drupal.org; some do not.
+        case element.name
+          when 'text'
+            @company = element.text
+          when 'img'
+            @company_logo = element['src']
+            @company = element['alt']
+        end
+      end
+    end
+
     def get_public_ip
       Resolv.getaddress('home.camerontod.com')
     end
+
 end

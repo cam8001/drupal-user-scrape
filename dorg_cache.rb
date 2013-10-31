@@ -41,7 +41,7 @@ class DOrgCache
 
     if File.exists? file_path and File.size(file_path) > 0
       @logger.info(self.class) {"Returning url #{url} from local cache #{file_path}."}
-      return open(file_path) if Time.now-File.mtime(file_path)<expire
+      return open(file_path)# if Time.now-File.mtime(file_path)<expire
     end
 
     @logger.info(self.class) {"Fetching document from #{url} and writing to #{file_path}"}
